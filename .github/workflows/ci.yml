@@ -1,0 +1,85 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+# Cancel any in-flight run for the same ref when a new commit lands.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  security-events: write   # required to upload Trivy SARIF to the Security tab
+  actions: read
+
+jobs:
+  build:
+    name: Build & typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck
+        run: pnpm -r --filter "./packages/*" typecheck
+
+      - name: Build
+        run: pnpm -r --filter "./packages/*" build
+
+      - name: Verify dist outputs exist
+        run: |
+          for p in tokens tailwind-preset ui; do
+            test -d "packages/$p/dist" || { echo "Missing dist/ for $p"; exit 1; }
+          done
+
+  trivy-scan:
+    name: Trivy vulnerability scan
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Filesystem scan: vulnerabilities in lockfile + any IaC files + secret patterns.
+      # exit-code: 1 fails the build on findings; ignore-unfixed skips vulns with no patch.
+      - name: Trivy filesystem scan
+        # @master is the convention for this action; consider pinning to a
+        # commit SHA for stricter supply-chain control once the workflow is stable.
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: fs
+          scan-ref: .
+          format: sarif
+          output: trivy-results.sarif
+          severity: HIGH,CRITICAL
+          exit-code: '1'
+          ignore-unfixed: true
+          # We don't ship containers, so skip image scanners and license checks here.
+          scanners: vuln,secret,misconfig
+
+      # Always upload the SARIF, even on scan failure, so findings are visible
+      # in the GitHub Security tab.
+      - name: Upload Trivy SARIF to Security tab
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: trivy-results.sarif
+          category: trivy-fs

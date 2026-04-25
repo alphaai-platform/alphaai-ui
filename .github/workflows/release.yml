@@ -1,0 +1,71 @@
+name: Release
+
+# Runs after merges to main. Behavior depends on whether there are pending
+# changesets in the .changeset/ folder:
+#
+#   * If pending changesets exist: opens (or updates) a "chore: release
+#     packages" PR that bumps versions and updates CHANGELOG.md. Maintainers
+#     review and squash-merge that PR; the next push to main runs this
+#     workflow again.
+#
+#   * If no pending changesets exist (the release PR was just merged): the
+#     workflow publishes the bumped packages to npm.
+#
+# changesets/action handles the loop-prevention internally — it pushes its
+# release-PR commits to its own branch, so we don't need a head_commit skip.
+#
+# Required repo secret: NPM_TOKEN (granular access token with publish rights
+# to the @alphaai org).
+
+on:
+  push:
+    branches: [main]
+
+# Only one release run at a time.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write          # commit version bumps + push tags
+  pull-requests: write     # open the release PR
+  id-token: write          # npm provenance (--provenance support)
+
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+          registry-url: https://registry.npmjs.org
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: pnpm -r --filter "./packages/*" build
+
+      - name: Create release PR or publish
+        uses: changesets/action@v1
+        with:
+          version: pnpm changeset version
+          publish: pnpm -r --filter "./packages/*" publish --no-git-checks --access public
+          commit: 'chore: release packages'
+          title: 'chore: release packages'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
