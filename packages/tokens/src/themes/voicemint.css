@@ -1,0 +1,25 @@
+/**
+ * VoiceMint theme — Amber + Emerald.
+ * Approximated from the slate/amber/emerald palette currently used
+ * across voicemint/frontend (Tailwind defaults, no prior token system).
+ */
+
+:root {
+  --primary: 38 92% 50%;
+  --primary-foreground: 240 10% 4%;
+
+  --secondary: 160 84% 39%;
+  --secondary-foreground: 0 0% 100%;
+
+  --ring: 38 92% 50%;
+}
+
+.dark {
+  --primary: 38 92% 55%;
+  --primary-foreground: 240 10% 4%;
+
+  --secondary: 160 84% 45%;
+  --secondary-foreground: 0 0% 100%;
+
+  --ring: 38 92% 55%;
+}

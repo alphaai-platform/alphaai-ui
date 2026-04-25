@@ -1,0 +1,24 @@
+/**
+ * FrameCraft theme — Neon Cyan + Electric Blue.
+ * Ported from framecraft/frontend/src/index.css:53-72,87-107.
+ */
+
+:root {
+  --primary: 186 100% 37%;
+  --primary-foreground: 0 0% 100%;
+
+  --secondary: 211 100% 50%;
+  --secondary-foreground: 0 0% 100%;
+
+  --ring: 186 100% 50%;
+}
+
+.dark {
+  --primary: 186 100% 50%;
+  --primary-foreground: 240 10% 4%;
+
+  --secondary: 211 100% 50%;
+  --secondary-foreground: 0 0% 100%;
+
+  --ring: 186 100% 50%;
+}

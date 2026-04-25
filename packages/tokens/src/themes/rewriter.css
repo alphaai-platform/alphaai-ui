@@ -1,0 +1,24 @@
+/**
+ * Rewriter theme — Indigo (HSL approximation of indigo-600 #4F46E5).
+ * Ported from rewriter-web/src/index.css :root/.dark overrides.
+ */
+
+:root {
+  --primary: 243 75% 59%;
+  --primary-foreground: 0 0% 100%;
+
+  --secondary: 240 5% 96%;
+  --secondary-foreground: 240 10% 4%;
+
+  --ring: 243 75% 59%;
+}
+
+.dark {
+  --primary: 243 75% 65%;
+  --primary-foreground: 240 10% 4%;
+
+  --secondary: 240 6% 15%;
+  --secondary-foreground: 0 0% 98%;
+
+  --ring: 243 75% 65%;
+}

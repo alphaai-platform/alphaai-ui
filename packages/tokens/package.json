@@ -1,0 +1,36 @@
+{
+  "name": "@alphaai/tokens",
+  "version": "0.1.0",
+  "description": "Design tokens for AlphaAI products — colors, spacing, typography, motion. Source of truth for @alphaai/ui and consuming apps.",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "src/tokens.css",
+    "src/themes/*.css"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./tokens.css": "./src/tokens.css",
+    "./themes/voicemint.css": "./src/themes/voicemint.css",
+    "./themes/framecraft.css": "./src/themes/framecraft.css",
+    "./themes/rewriter.css": "./src/themes/rewriter.css"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "echo 'no lint'"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.2"
+  }
+}
