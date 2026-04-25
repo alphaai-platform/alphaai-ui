@@ -61,7 +61,9 @@ jobs:
       # Filesystem scan: vulnerabilities in lockfile + any IaC files + secret patterns.
       # exit-code: 1 fails the build on findings; ignore-unfixed skips vulns with no patch.
       - name: Trivy filesystem scan
-        uses: aquasecurity/trivy-action@0.28.0
+        # @master is the convention for this action; consider pinning to a
+        # commit SHA for stricter supply-chain control once the workflow is stable.
+        uses: aquasecurity/trivy-action@master
         with:
           scan-type: fs
           scan-ref: .
